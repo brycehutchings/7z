@@ -1,5 +1,9 @@
-# Git archive of 7-zip releases
+# UWP Support
 
-Because 7-zip [doesn't](https://github.com/7z) have a public repository, and their code is released only as archives on SourceForge, I maintain a git-ified copy here.
+This project is a minor fork of the 7z library with modifications to run well on the UWP platform. The following modications have been made:
+* 7z COM-style objects support IAgileObject. Without doing this, the .NET runtime will try to marshal the 7z objects across threads and fail.
+* Convenient vcxproj files which exclude code not needed to build the core library, in order to pass the Windows App Certification Kit (WACK).
 
-The [tagged releases](https://github.com/pornel/7z/releases) and the [original branch](https://github.com/pornel/7z/tree/original) contain pure 7-zip releases, without any modifications like this readme.
+## What's missing
+
+There is no sample UWP project which uses the 7z library included. This is currently left as an excerise for the reader. Many of the 7z COM-style interfaces are documented in the 7z header source. In addition, [there is a tutorial](https://www.codeproject.com/Articles/27148/C-NET-Interface-for-Zip-Archive-DLLs) which covers some of the basics.

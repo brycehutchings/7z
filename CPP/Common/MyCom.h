@@ -182,7 +182,11 @@ public:
   ~CMyUnknownImp() {}
 };
 
-
+// Agile objects in Windows are free-threaded objects which require no marshaling to use
+// between different threads. By simply having QueryInterface return success for this
+// interface ID, .NET will not try to marshal across threads which doesn't work since these
+// aren't full-fledged COM objects.
+DEFINE_GUID(IID_IAgileObject, 0x94ea2b94, 0xe9cc, 0x49e0, 0xc0, 0xff, 0xee, 0x64, 0xca, 0x8f, 0x5b, 0x90);
 
 #define MY_QUERYINTERFACE_BEGIN STDMETHOD(QueryInterface) \
 (REFGUID iid, void **outObject) throw() { *outObject = NULL;
@@ -191,8 +195,10 @@ public:
     { *outObject = (void *)(i *)this; }
 
 #define MY_QUERYINTERFACE_ENTRY_UNKNOWN(i) if (iid == IID_IUnknown) \
-    { *outObject = (void *)(IUnknown *)(i *)this; }
-
+    { *outObject = (void *)(IUnknown *)(i *)this; } \
+    else if (iid == IID_IAgileObject) \
+    { *outObject = (void *)(i *)this; } // Hijack Unknown macro to support IAgileObject which will indicate to .NET that this is a free-threaded object.
+    
 #define MY_QUERYINTERFACE_BEGIN2(i) MY_QUERYINTERFACE_BEGIN \
     MY_QUERYINTERFACE_ENTRY_UNKNOWN(i) \
     MY_QUERYINTERFACE_ENTRY(i)
