@@ -10,9 +10,13 @@
 #if !defined(_WIN64) && !defined(UNDER_CE)
 static inline bool IsItWindowsNT()
 {
+#ifndef UWP
   OSVERSIONINFO vi;
   vi.dwOSVersionInfoSize = sizeof(vi);
   return (::GetVersionEx(&vi) && vi.dwPlatformId == VER_PLATFORM_WIN32_NT);
+#else
+  return true;
+#endif
 }
 #endif
 

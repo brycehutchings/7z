@@ -210,6 +210,7 @@ bool CFindFile::FindNext(CFileInfo &fi)
 static FindFirstStreamW_Ptr g_FindFirstStreamW;
 static FindNextStreamW_Ptr g_FindNextStreamW;
 
+#ifndef UWP
 struct CFindStreamLoader
 {
   CFindStreamLoader()
@@ -218,6 +219,7 @@ struct CFindStreamLoader
     g_FindNextStreamW = (FindNextStreamW_Ptr)::GetProcAddress(::GetModuleHandleA("kernel32.dll"), "FindNextStreamW");
   }
 } g_FindStreamLoader;
+#endif
 
 bool CStreamInfo::IsMainStream() const throw()
 {
@@ -654,6 +656,7 @@ bool CEnumerator::Next(CFileInfo &fi, bool &found)
   return (::GetLastError() == ERROR_NO_MORE_FILES);
 }
 
+#ifndef UWP
 ////////////////////////////////
 // CFindChangeNotification
 // FindFirstChangeNotification can return 0. MSDN doesn't tell about it.
@@ -744,6 +747,7 @@ bool MyGetLogicalDriveStrings(CObjectVector<FString> &driveStrings)
   }
 }
 
+#endif
 #endif
 
 }}}

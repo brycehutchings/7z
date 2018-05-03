@@ -62,7 +62,10 @@ struct CReparseAttr
 
 namespace NIO {
 
+#ifndef UWP
 bool GetReparseData(CFSTR path, CByteBuffer &reparseData, BY_HANDLE_FILE_INFORMATION *fileInfo = NULL);
+#endif
+
 bool SetReparseData(CFSTR path, bool isDir, const void *data, DWORD size);
 
 class CFileBase
@@ -75,6 +78,7 @@ protected:
 
 public:
 
+#ifndef UWP
   bool DeviceIoControl(DWORD controlCode, LPVOID inBuffer, DWORD inSize,
       LPVOID outBuffer, DWORD outSize, LPDWORD bytesReturned, LPOVERLAPPED overlapped = NULL) const
   {
@@ -92,6 +96,7 @@ public:
     DWORD bytesReturned;
     return DeviceIoControlOut(controlCode, outBuffer, outSize, &bytesReturned);
   }
+#endif
 
 public:
   #ifdef SUPPORT_DEVICE_FILE
@@ -112,7 +117,8 @@ public:
   bool Seek(UInt64 position, UInt64 &newPosition) const throw();
   bool SeekToBegin() const throw();
   bool SeekToEnd(UInt64 &newPosition) const throw();
-  
+
+#ifndef UWP
   bool GetFileInformation(BY_HANDLE_FILE_INFORMATION *info) const
     { return BOOLToBool(GetFileInformationByHandle(_handle, info)); }
 
@@ -123,6 +129,7 @@ public:
       return false;
     return file.GetFileInformation(info);
   }
+#endif
 };
 
 #ifndef UNDER_CE
@@ -133,12 +140,14 @@ public:
 // IOCTL_DISK_GET_DRIVE_GEOMETRY_EX works since WinXP
 #define my_IOCTL_DISK_GET_DRIVE_GEOMETRY_EX  CTL_CODE(IOCTL_DISK_BASE, 0x0028, METHOD_BUFFERED, FILE_ANY_ACCESS)
 
+#ifndef UWP
 struct my_DISK_GEOMETRY_EX
 {
   DISK_GEOMETRY Geometry;
   LARGE_INTEGER DiskSize;
   BYTE Data[1];
 };
+#endif
 #endif
 
 class CInFile: public CFileBase

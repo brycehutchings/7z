@@ -1609,6 +1609,7 @@ int MyStringCompareNoCase(const char *s1, const char *s2)
 }
 */
 
+#ifndef UWP
 static inline UINT GetCurrentCodePage()
 {
   #if defined(UNDER_CE) || !defined(_WIN32)
@@ -1617,6 +1618,7 @@ static inline UINT GetCurrentCodePage()
   return ::AreFileApisANSI() ? CP_ACP : CP_OEMCP;
   #endif
 }
+#endif
 
 #ifdef USE_UNICODE_FSTRING
 

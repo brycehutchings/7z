@@ -23,7 +23,7 @@ UInt32 CountAffinity(DWORD_PTR mask)
 
 BOOL CProcessAffinity::Get()
 {
-  #ifndef UNDER_CE
+  #if !defined(UNDER_CE) && !defined(UWP) // UWP Note: MSDN says GetProcessAffinityMask is available to UWP but it is excluded in the SDK. This might be fixed in later versions of the SDK.
   return GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask);
   #else
   return FALSE;
@@ -103,7 +103,7 @@ bool GetRamSize(UInt64 &size)
     stat.dwLength = sizeof(stat);
   #endif
   
-  #ifdef _WIN64
+  #if defined(_WIN64) || defined(UWP)
     
     if (!::GlobalMemoryStatusEx(&stat))
       return false;

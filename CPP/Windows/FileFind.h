@@ -139,6 +139,7 @@ public:
   bool Next(CFileInfo &fileInfo, bool &found);
 };
 
+#ifndef UWP
 class CFindChangeNotification
 {
   HANDLE _handle;
@@ -154,6 +155,7 @@ public:
 
 #ifndef UNDER_CE
 bool MyGetLogicalDriveStrings(CObjectVector<FString> &driveStrings);
+#endif
 #endif
 
 }}}

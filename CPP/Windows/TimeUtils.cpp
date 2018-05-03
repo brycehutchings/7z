@@ -18,7 +18,7 @@ static const UInt64 kNumSecondsInFileTime = (UInt64)(Int64)-1 / kNumTimeQuantums
 
 bool DosTimeToFileTime(UInt32 dosTime, FILETIME &ft) throw()
 {
-  #if defined(_WIN32) && !defined(UNDER_CE)
+  #if defined(_WIN32) && !defined(UNDER_CE) && !defined(UWP)
   return BOOLToBool(::DosDateTimeToFileTime((UInt16)(dosTime >> 16), (UInt16)(dosTime & 0xFFFF), &ft));
   #else
   ft.dwLowDateTime = 0;
@@ -43,7 +43,7 @@ static const UInt32 kLowDosTime = 0x210000;
 
 bool FileTimeToDosTime(const FILETIME &ft, UInt32 &dosTime) throw()
 {
-  #if defined(_WIN32) && !defined(UNDER_CE)
+  #if defined(_WIN32) && !defined(UNDER_CE) && !defined(UWP)
 
   WORD datePart, timePart;
   if (!::FileTimeToDosDateTime(&ft, &datePart, &timePart))

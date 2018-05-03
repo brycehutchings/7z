@@ -22,8 +22,7 @@ namespace NWindows {
 namespace NFile {
 namespace NDir {
 
-#ifndef UNDER_CE
-
+#if !defined(UNDER_CE) && !defined(UWP)
 bool GetWindowsDir(FString &path)
 {
   UINT needLength;
@@ -81,8 +80,17 @@ bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const 
   
   HANDLE hDir = INVALID_HANDLE_VALUE;
   IF_USE_MAIN_PATH
+#ifndef UWP
     hDir = ::CreateFileW(fs2us(path), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
         NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+#else
+  {
+      CREATEFILE2_EXTENDED_PARAMETERS createFile2Params{};
+      createFile2Params.dwSize = sizeof(createFile2Params);
+      createFile2Params.dwFileFlags = FILE_FLAG_BACKUP_SEMANTICS;
+      hDir = ::CreateFile2(fs2us(path), GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE, OPEN_EXISTING, &createFile2Params);
+  }
+#endif
   #ifdef WIN_LONG_PATH
   if (hDir == INVALID_HANDLE_VALUE && USE_SUPER_PATH)
   {
@@ -175,7 +183,11 @@ bool MyMoveFile(CFSTR oldFile, CFSTR newFile)
   #endif
   {
     IF_USE_MAIN_PATH_2(oldFile, newFile)
+#ifndef UWP
       if (::MoveFileW(fs2us(oldFile), fs2us(newFile)))
+#else
+      if (::MoveFileEx(fs2us(oldFile), fs2us(newFile), 0))
+#endif
         return true;
     #ifdef WIN_LONG_PATH
     if (USE_SUPER_PATH_2)
@@ -189,7 +201,7 @@ bool MyMoveFile(CFSTR oldFile, CFSTR newFile)
   return false;
 }
 
-#ifndef UNDER_CE
+#if !defined(UNDER_CE) && !defined(UWP)
 
 EXTERN_C_BEGIN
 typedef BOOL (WINAPI *Func_CreateHardLinkW)(
@@ -583,7 +595,13 @@ bool MyGetTempPath(FString &path)
 
 static bool CreateTempFile(CFSTR prefix, bool addRandom, FString &path, NIO::COutFile *outFile)
 {
-  UInt32 d = (GetTickCount() << 12) ^ (GetCurrentThreadId() << 14) ^ GetCurrentProcessId();
+  UInt32 d = 
+#ifndef UWP
+      (GetTickCount() << 12)
+#else
+      ((DWORD)GetTickCount64() << 12)
+#endif
+      ^ (GetCurrentThreadId() << 14) ^ GetCurrentProcessId();
   for (unsigned i = 0; i < 100; i++)
   {
     path = prefix;
@@ -602,7 +620,13 @@ static bool CreateTempFile(CFSTR prefix, bool addRandom, FString &path, NIO::COu
       if (outFile)
         path += '.';
       path += s;
-      UInt32 step = GetTickCount() + 2;
+      UInt32 step = 
+#ifndef UWP
+          GetTickCount()
+#else
+          (DWORD)GetTickCount64()
+#endif
+          + 2;
       if (step == 0)
         step = 1;
       d += step;

@@ -11,8 +11,10 @@ namespace NWindows {
 namespace NFile {
 namespace NDir {
 
+#ifndef UWP
 bool GetWindowsDir(FString &path);
 bool GetSystemDir(FString &path);
+#endif
 
 bool SetDirTime(CFSTR path, const FILETIME *cTime, const FILETIME *aTime, const FILETIME *mTime);
 
@@ -31,7 +33,8 @@ bool SetFileAttrib_PosixHighDetect(CFSTR path, DWORD attrib);
 
 bool MyMoveFile(CFSTR existFileName, CFSTR newFileName);
 
-#ifndef UNDER_CE
+
+#if !defined(UNDER_CE) && !defined(UWP)
 bool MyCreateHardLink(CFSTR newFileName, CFSTR existFileName);
 #endif
 

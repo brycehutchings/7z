@@ -1,1 +1,7 @@
-*.o
+/.vs/
+/x64/Debug/
+/x64/Release/
+/ARM/Debug/
+/ARM/Release/
+/Debug/
+/Release/

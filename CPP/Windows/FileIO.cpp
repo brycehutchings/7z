@@ -66,8 +66,16 @@ bool CFileBase::Create(CFSTR path, DWORD desiredAccess,
   #endif
   {
     IF_USE_MAIN_PATH
+#ifndef UWP
       _handle = ::CreateFileW(fs2us(path), desiredAccess, shareMode,
         (LPSECURITY_ATTRIBUTES)NULL, creationDisposition, flagsAndAttributes, (HANDLE)NULL);
+#else
+      CREATEFILE2_EXTENDED_PARAMETERS createFile2Params{};
+      createFile2Params.dwSize = sizeof(createFile2Params);
+      createFile2Params.dwFileFlags      = flagsAndAttributes & 0xFFF80000; // Min flag bit is 0x80000 (FILE_FLAG_FIRST_PIPE_INSTANCE) - 13 bits
+      createFile2Params.dwFileAttributes = flagsAndAttributes & 0x0007FFFF; // Max attribute bit is 0x40000 (FILE_ATTRIBUTE_EA) - 19 bits
+      _handle = ::CreateFile2(fs2us(path), desiredAccess, shareMode, creationDisposition, &createFile2Params);
+#endif
     #ifdef WIN_LONG_PATH
     if (_handle == INVALID_HANDLE_VALUE && USE_SUPER_PATH)
     {
@@ -106,12 +114,19 @@ bool CFileBase::GetLength(UInt64 &length) const throw()
   }
   #endif
 
+#ifndef UWP
   DWORD sizeHigh;
   DWORD sizeLow = ::GetFileSize(_handle, &sizeHigh);
   if (sizeLow == 0xFFFFFFFF)
     if (::GetLastError() != NO_ERROR)
       return false;
   length = (((UInt64)sizeHigh) << 32) + sizeLow;
+#else
+  LARGE_INTEGER size;
+  if (!GetFileSizeEx(_handle, &size))
+      return false;
+  length = size.QuadPart;
+#endif
   return true;
 }
 

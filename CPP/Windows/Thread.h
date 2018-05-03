@@ -27,7 +27,9 @@ public:
   HANDLE Detach() { HANDLE h = thread; thread = NULL; return h; }
   DWORD Resume() { return ::ResumeThread(thread); }
   DWORD Suspend() { return ::SuspendThread(thread); }
+#ifndef UWP
   bool Terminate(DWORD exitCode) { return BOOLToBool(::TerminateThread(thread, exitCode)); }
+#endif
   int GetPriority() { return ::GetThreadPriority(thread); }
   bool SetPriority(int priority) { return BOOLToBool(::SetThreadPriority(thread, priority)); }
   #endif

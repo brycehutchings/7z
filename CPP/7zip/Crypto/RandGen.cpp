@@ -74,7 +74,11 @@ void CRandomGenerator::Init()
     #endif
 
     #ifdef _WIN32
+    #ifndef UWP
     DWORD tickCount = ::GetTickCount();
+    #else
+    DWORD tickCount = (DWORD)::GetTickCount64();
+    #endif
     HASH_UPD(tickCount);
     #endif
     

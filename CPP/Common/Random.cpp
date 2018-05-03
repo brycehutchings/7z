@@ -18,7 +18,11 @@ void CRandom::Init()
 {
   Init((unsigned int)
     #ifdef _WIN32
+    #ifndef UWP
     GetTickCount()
+    #else
+    GetTickCount64()
+    #endif
     #else
     time(NULL)
     #endif
